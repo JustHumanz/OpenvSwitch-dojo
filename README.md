@@ -1,4 +1,4 @@
-## Openvswitch dojo
+## OpenvSwitch dojo
 
 
 this repo will contain PoC of openvswitch training
