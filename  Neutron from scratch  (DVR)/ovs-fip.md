@@ -167,8 +167,8 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 ## Host 1
 
 #### create br host
-- `ovs-vsctl add-br br-host-1`
-- `ovs-vsctl add-port br-host-1 vxlan1 -- set interface vxlan1 options:remote_ip=192.168.122.33`
+- `ovs-vsctl add-br br-tun`
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=internal options:remote_ip=192.168.122.33`
 
 #### create ex br
 - `ovs-vsctl add-br br-ex`
@@ -246,8 +246,8 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
 ## Host 2
 
 #### create br host
-- `ovs-vsctl add-br br-host-2`
-- `ovs-vsctl add-port br-host-2 vxlan1 -- set interface vxlan1 options:remote_ip=192.168.122.6`
+- `ovs-vsctl add-br br-tun`
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 options:remote_ip=192.168.122.6`
 
 #### create ex br
 - `ovs-vsctl add-br br-ex`
