@@ -168,7 +168,7 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 
 #### create br host
 - `ovs-vsctl add-br br-tun`
-- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=internal options:remote_ip=192.168.122.33`
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.33`
 
 #### create ex br
 - `ovs-vsctl add-br br-ex`
@@ -182,6 +182,9 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 #### create port for patch type 
 - `ovs-vsctl add-port br-int int-ex tag=3 -- set interface int-ex type=patch options:peer=ex-int`
 - `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
+
+- `ovs-vsctl add-port br-int int-tun tag=10 -- set interface int-tun type=patch options:peer=tun-int`
+- `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
 
 #### create fip & router port in int-br
 - `ovs-vsctl add-port br-int vport-fip tag=3 -- set interface vport-fip type=internal`
@@ -238,6 +241,7 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
      -w bridge=br-int,virtualport_type=openvswitch --check all=off
 ```
 
+- `ovs-vsctl set port vnet0 tag=10`
 - `virsh console cirros-vm`
 - `ip add add 172.16.18.100/24 dev eth0`
 - `ip link set eth0 up`
@@ -247,7 +251,7 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
 
 #### create br host
 - `ovs-vsctl add-br br-tun`
-- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 options:remote_ip=192.168.122.6`
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.6`
 
 #### create ex br
 - `ovs-vsctl add-br br-ex`
@@ -262,6 +266,9 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
 - `ovs-vsctl add-port br-int int-ex -- set interface int-ex type=patch options:peer=ex-int`
 - `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 
+- `ovs-vsctl add-port br-int int-tun tag=10 -- set interface int-tun type=patch options:peer=tun-int`
+- `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
+
 ### VM
 ```
 virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
@@ -269,6 +276,7 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
      -w bridge=br-int,virtualport_type=openvswitch --check all=off
 ```
 
+- `ovs-vsctl set port vnet0 tag=10`
 - `virsh console cirros-vm`
 - `ip add add 172.16.18.200/24 dev eth0`
 - `ip link set eth0 up`
@@ -281,3 +289,4 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
 - http://blog.gampel.net/2015/01/openstack-DVR-SNAT.html
 - https://assafmuller.com/2015/04/15/distributed-virtual-routing-floating-ips/
 - https://blog.scottlowe.org/2012/11/27/connecting-ovs-bridges-with-patch-ports/
+- https://www.youtube.com/watch?v=7IXEtUEZslg
