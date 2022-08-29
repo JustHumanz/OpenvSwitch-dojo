@@ -30,3 +30,6 @@ enp1s0 = 192.168.122.0/24 for manage network (dhcp)
 enp7s0 = 192.168.100.0/24 for floating ip network
 
 For diagram/topology i will use https://asciiflow.com/
+
+### Note
+**don't use this on production environment,this all was dumb&dirty workflows**
