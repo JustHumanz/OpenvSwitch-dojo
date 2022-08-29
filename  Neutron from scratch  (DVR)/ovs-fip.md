@@ -180,12 +180,12 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 - `ovs-vsctl add-br br-int`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int vport-br-to-ex -- set interface vport-br-to-ex type=patch options:peer=vport-br-to-int`
+- `ovs-vsctl add-port br-int vport-br-to-ex tag=3 -- set interface vport-br-to-ex type=patch options:peer=vport-br-to-int`
 - `ovs-vsctl add-port br-ex vport-br-to-int -- set interface vport-br-to-int type=patch options:peer=vport-br-to-ex`
 
 #### create fip & router port in int-br
-- `ovs-vsctl add-port br-int vport-fip -- set interface vport-fip type=internal`
-- `ovs-vsctl add-port br-int vport-router -- set interface vport-router type=internal`
+- `ovs-vsctl add-port br-int vport-fip tag=3 -- set interface vport-fip type=internal`
+- `ovs-vsctl add-port br-int vport-router tag=10 -- set interface vport-router type=internal`
 
 #### create fip & router ns
 - `ip netns add fip-ns`
