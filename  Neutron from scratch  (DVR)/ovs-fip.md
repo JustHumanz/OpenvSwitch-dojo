@@ -10,8 +10,8 @@
 - `ovs-vsctl add-br br-int`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int vport-br-to-ex -- set interface vport-br-to-ex type=patch options:peer=vport-br-to-int`
-- `ovs-vsctl add-port br-ex vport-br-to-int -- set interface vport-br-to-int type=patch options:peer=vport-br-to-ex`
+- `ovs-vsctl add-port br-int int-ex -- set interface int-ex type=patch options:peer=ex-int`
+- `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 
 #### create fip & router port in int-br
 - `ovs-vsctl add-port br-int vport-fip -- set interface vport-fip type=internal`
@@ -83,8 +83,8 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
 - `ovs-vsctl add-br br-int`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int vport-br-to-ex tag=3 -- set interface vport-br-to-ex type=patch options:peer=vport-br-to-int`
-- `ovs-vsctl add-port br-ex vport-br-to-int -- set interface vport-br-to-int type=patch options:peer=vport-br-to-ex`
+- `ovs-vsctl add-port br-int int-ex tag=3 -- set interface int-ex type=patch options:peer=ex-int`
+- `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 
 #### create fip & router port in int-br
 - `ovs-vsctl add-port br-int vport-fip tag=3 -- set interface vport-fip type=internal`
@@ -180,8 +180,8 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 - `ovs-vsctl add-br br-int`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int vport-br-to-ex tag=3 -- set interface vport-br-to-ex type=patch options:peer=vport-br-to-int`
-- `ovs-vsctl add-port br-ex vport-br-to-int -- set interface vport-br-to-int type=patch options:peer=vport-br-to-ex`
+- `ovs-vsctl add-port br-int int-ex tag=3 -- set interface int-ex type=patch options:peer=ex-int`
+- `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 
 #### create fip & router port in int-br
 - `ovs-vsctl add-port br-int vport-fip tag=3 -- set interface vport-fip type=internal`
@@ -259,8 +259,8 @@ virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
 - `ovs-vsctl add-br br-int`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int vport-br-to-ex -- set interface vport-br-to-ex type=patch options:peer=vport-br-to-int`
-- `ovs-vsctl add-port br-ex vport-br-to-int -- set interface vport-br-to-int type=patch options:peer=vport-br-to-ex`
+- `ovs-vsctl add-port br-int int-ex -- set interface int-ex type=patch options:peer=ex-int`
+- `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 
 ### VM
 ```
