@@ -410,18 +410,28 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 - `ovs-vsctl add-port br-int int-tun -- set interface int-tun type=patch options:peer=tun-int`
 - `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
 
-### VM
+### VMS
 ```
-virt-install --import --name cirros-vm --memory 512 --vcpus 1 --cpu host \
+virt-install --import --name cirros-vm-1 --memory 512 --vcpus 1 --cpu host \
      --disk cirros-0.3.2-x86_64-disk.img,format=qcow2,bus=virtio \
      -w bridge=br-int,virtualport_type=openvswitch --check all=off
 ```
-
 - `ovs-vsctl set port vnet0 tag=10`
-- `virsh console cirros-vm`
+- `virsh console cirros-vm-1`
 - `ip add add 172.16.18.200/24 dev eth0`
 - `ip link set eth0 up`
 - `ip route add default via 172.16.18.1`
+
+```
+virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
+     --disk cirros-0.3.2-x86_64-disk-clone.img,format=qcow2,bus=virtio \
+     -w bridge=br-int,virtualport_type=openvswitch --check all=off
+```
+- `ovs-vsctl set port vnet1 tag=20`
+- `virsh console cirros-vm-2`
+- `ip add add 172.16.19.200/24 dev eth0`
+- `ip link set eth0 up`
+- `ip route add default via 172.16.19.1`
 
 
 # Ref:
