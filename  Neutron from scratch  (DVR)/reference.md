@@ -5,3 +5,4 @@
 - https://assafmuller.com/2015/04/15/distributed-virtual-routing-floating-ips/
 - https://blog.scottlowe.org/2012/11/27/connecting-ovs-bridges-with-patch-ports/
 - https://www.youtube.com/watch?v=7IXEtUEZslg
+- https://arxiv.org/pdf/1406.0440.pdf
