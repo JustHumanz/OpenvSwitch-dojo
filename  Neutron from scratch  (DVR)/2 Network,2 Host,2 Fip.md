@@ -1,6 +1,6 @@
 # Topology
 
-## 2 Network,2 Host,2 Fip
+## 2 Network,2 Host,4 Fip
 ```
                                                                                                                                                        xxx x   xx
                                                                                                                                                        x         x
