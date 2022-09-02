@@ -118,8 +118,9 @@
 
 #### create br host
 - `ovs-vsctl add-br br-tun`
-- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.33`
-
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.33 options:local_ip=192.168.122.6 options:egress_pkt_mark=0 options:df_default=true out_key=flow options:in_key=flow`
+- `ovs-vsctl add-port br-int int-tun -- set interface int-tun type=patch options:peer=tun-int`
+- `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
 
 #### create ex br
 - `ovs-vsctl add-br br-ex`
@@ -212,7 +213,31 @@
 - `ip netns exec dhcp-1-ns dnsmasq -p0 --dhcp-range=172.16.18.10,172.16.18.253,1h --dhcp-option=3,172.16.18.1 --dhcp-host=00:00:00:00:01:01,172.16.18.100 --dhcp-host=00:00:00:00:02:01,172.16.18.200 --dhcp-leasefile=/var/lib/misc/dhcp-1-dnsmasq.leases`
 - `ip netns exec dhcp-2-ns dnsmasq -p0 --dhcp-range=172.16.19.10,172.16.19.253,1h --dhcp-option=3,172.16.19.1 --dhcp-host=00:00:00:00:01:02,172.16.19.100 --dhcp-host=00:00:00:00:02:02,172.16.19.200 --dhcp-leasefile=/var/lib/misc/dhcp-2-dnsmasq.leases`
 
+#### set openflow
 
+- `ovs-ofctl add-flow br-tun "table=0,priority=1,in_port=3 actions=resubmit(,1)"` #Make sure port 3 is vxlan interface
+- `ovs-ofctl add-flow br-tun "table=0,priority=1,in_port=1 actions=resubmit(,4)"` #Make sure port 1 is tun-int interface
+- `ovs-ofctl add-flow br-tun "table=0,priority=0 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=3,arp,dl_vlan=10,arp_tpa=172.16.18.100 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=3,arp,dl_vlan=20,arp_tpa=172.16.19.100 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=2,dl_vlan=10,dl_dst=00:00:00:00:01:01 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=2,dl_vlan=20,dl_dst=00:00:00:00:01:02 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=0 actions=resubmit(,2)"`
+- `ovs-ofctl add-flow br-tun "table=2,priority=0,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 actions=resubmit(,20)"`
+- `ovs-ofctl add-flow br-tun "table=2,priority=0,dl_dst=01:00:00:00:00:00/01:00:00:00:00:00 actions=resubmit(,22)"`
+- `ovs-ofctl add-flow br-tun "table=4,priority=1,tunnel_id=0x2 actions=mod_vlan_vid:10,resubmit(,9)"`
+- `ovs-ofctl add-flow br-tun "table=4,priority=1,tunnel_id=0x3 actions=mod_vlan_vid:20,resubmit(,9)"`
+- `ovs-ofctl add-flow br-tun "table=4,priority=0 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=9,priority=1,dl_src=00:00:00:00:02:01 actions=output:3"`
+- `ovs-ofctl add-flow br-tun "table=9,priority=1,dl_src=00:00:00:00:02:02 actions=output:3"`
+- `ovs-ofctl add-flow br-tun "table=9,priority=0 actions=resubmit(,10)"`
+- `ovs-ofctl add-flow br-tun "table=10,priority=1 actions=learn(table=20,hard_timeout=300,priority=1,cookie=0x0,NXM_OF_VLAN_TCI[0..11],NXM_OF_ETH_DST[]=NXM_OF_ETH_SRC[],load:0->NXM_OF_VLAN_TCI[],load:NXM_NX_TUN_ID[]->NXM_NX_TUN_ID[],output:OXM_OF_IN_PORT[]),output:3"`
+- `ovs-ofctl add-flow br-tun "table=20,priority=2,dl_vlan=10,dl_dst=00:00:00:00:02:01 actions=strip_vlan,load:0x2->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=20,priority=2,dl_vlan=20,dl_dst=00:00:00:00:02:02 actions=strip_vlan,load:0x3->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=20,priority=0 actions=resubmit(,22)"`
+- `ovs-ofctl add-flow br-tun "table=22,priority=1,dl_vlan=10 actions=strip_vlan,load:0x2->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=22,priority=1,dl_vlan=20 actions=strip_vlan,load:0x3->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=22,priority=0 actions=drop"`
 
 ### VMS
 ```
@@ -232,7 +257,7 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 
 #### create br host
 - `ovs-vsctl add-br br-tun`
-- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.6`
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.6 options:local_ip=192.168.122.33 options:egress_pkt_mark=0 options:df_default=true out_key=flow options:in_key=flow`
 
 #### create ex br
 - `ovs-vsctl add-br br-ex`
@@ -249,6 +274,33 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 
 - `ovs-vsctl add-port br-int int-tun -- set interface int-tun type=patch options:peer=tun-int`
 - `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
+
+#### set openflow
+
+- `ovs-ofctl add-flow br-tun "table=0,priority=1,in_port=3 actions=resubmit(,1)"` #Make sure port 3 is vxlan interface
+- `ovs-ofctl add-flow br-tun "table=0,priority=1,in_port=1 actions=resubmit(,4)"` #Make sure port 1 is tun-int interface
+- `ovs-ofctl add-flow br-tun "table=0,priority=0 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=3,arp,dl_vlan=10,arp_tpa=172.16.18.100 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=3,arp,dl_vlan=20,arp_tpa=172.16.19.100 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=2,dl_vlan=10,dl_dst=00:00:00:00:01:01 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=2,dl_vlan=20,dl_dst=00:00:00:00:01:02 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=1,priority=0 actions=resubmit(,2)"`
+- `ovs-ofctl add-flow br-tun "table=2,priority=0,dl_dst=00:00:00:00:00:00/01:00:00:00:00:00 actions=resubmit(,20)"`
+- `ovs-ofctl add-flow br-tun "table=2,priority=0,dl_dst=01:00:00:00:00:00/01:00:00:00:00:00 actions=resubmit(,22)"`
+- `ovs-ofctl add-flow br-tun "table=4,priority=1,tunnel_id=0x2 actions=mod_vlan_vid:10,resubmit(,9)"`
+- `ovs-ofctl add-flow br-tun "table=4,priority=1,tunnel_id=0x3 actions=mod_vlan_vid:20,resubmit(,9)"`
+- `ovs-ofctl add-flow br-tun "table=4,priority=0 actions=drop"`
+- `ovs-ofctl add-flow br-tun "table=9,priority=1,dl_src=00:00:00:00:02:01 actions=output:3"`
+- `ovs-ofctl add-flow br-tun "table=9,priority=1,dl_src=00:00:00:00:02:02 actions=output:3"`
+- `ovs-ofctl add-flow br-tun "table=9,priority=0 actions=resubmit(,10)"`
+- `ovs-ofctl add-flow br-tun "table=10,priority=1 actions=learn(table=20,hard_timeout=300,priority=1,cookie=0x0,NXM_OF_VLAN_TCI[0..11],NXM_OF_ETH_DST[]=NXM_OF_ETH_SRC[],load:0->NXM_OF_VLAN_TCI[],load:NXM_NX_TUN_ID[]->NXM_NX_TUN_ID[],output:OXM_OF_IN_PORT[]),output:3"`
+- `ovs-ofctl add-flow br-tun "table=20,priority=2,dl_vlan=10,dl_dst=00:00:00:00:02:01 actions=strip_vlan,load:0x2->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=20,priority=2,dl_vlan=20,dl_dst=00:00:00:00:02:02 actions=strip_vlan,load:0x3->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=20,priority=0 actions=resubmit(,22)"`
+- `ovs-ofctl add-flow br-tun "table=22,priority=1,dl_vlan=10 actions=strip_vlan,load:0x2->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=22,priority=1,dl_vlan=20 actions=strip_vlan,load:0x3->NXM_NX_TUN_ID[],output:1"`
+- `ovs-ofctl add-flow br-tun "table=22,priority=0 actions=drop"`
+
 
 ### VMS
 ```
