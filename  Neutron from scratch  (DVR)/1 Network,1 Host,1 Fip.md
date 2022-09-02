@@ -63,6 +63,7 @@
 
 #### add nic fip to Ovs
 - `ovs-vsctl add-port br-ex enp7s0`
+- `ifconfig enp7s0 up`
 
 #### create int-br
 - `ovs-vsctl add-br br-int`
