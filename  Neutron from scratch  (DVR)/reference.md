@@ -6,3 +6,5 @@
 - https://blog.scottlowe.org/2012/11/27/connecting-ovs-bridges-with-patch-ports/
 - https://www.youtube.com/watch?v=7IXEtUEZslg
 - https://arxiv.org/pdf/1406.0440.pdf
+- https://aptira.com/openstack-rules-how-openvswitch-works-inside-openstack/
+- https://man7.org/linux/man-pages/man7/ovs-fields.7.html
