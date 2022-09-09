@@ -8,3 +8,4 @@
 - https://arxiv.org/pdf/1406.0440.pdf
 - https://aptira.com/openstack-rules-how-openvswitch-works-inside-openstack/
 - https://man7.org/linux/man-pages/man7/ovs-fields.7.html
+- http://krnet.gagabox.com/board/data/dprogram/2001/I2-3-%BD%C9%C0%E5%C8%C6.pdf
