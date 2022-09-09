@@ -1,6 +1,6 @@
 # Topology
 
-## 2 Network,2 Host,2 Fip
+## 2 Network,2 Host,1 Fip
 ![Topology](../img/DVR-2host-2network-2vm.png "DVR")
 
 # Walkthrough
@@ -84,15 +84,6 @@
 #### set nat firewall
 - `ip netns exec router-ns iptables -t nat -A PREROUTING -d 192.168.100.150/32 -j DNAT --to-destination 172.16.18.100`
 - `ip netns exec router-ns iptables -t nat -A POSTROUTING -s 172.16.18.100/32 -j SNAT --to-source 192.168.100.150`
-
-- `ip netns exec router-ns iptables -t nat -A PREROUTING -d 192.168.100.160/32 -j DNAT --to-destination 172.16.19.100`
-- `ip netns exec router-ns iptables -t nat -A POSTROUTING -s 172.16.19.100/32 -j SNAT --to-source 192.168.100.160`
-
-- `ip netns exec router-ns iptables -t nat -A PREROUTING -d 192.168.100.170/32 -j DNAT --to-destination 172.16.19.200`
-- `ip netns exec router-ns iptables -t nat -A POSTROUTING -s 172.16.19.200/32 -j SNAT --to-source 192.168.100.170`
-
-- `ip netns exec router-ns iptables -t nat -A PREROUTING -d 192.168.100.180/32 -j DNAT --to-destination 172.16.18.200`
-- `ip netns exec router-ns iptables -t nat -A POSTROUTING -s 172.16.18.200/32 -j SNAT --to-source 192.168.100.180`
 
 #### set dhcp server
 - `ovs-vsctl add-port br-int vport-dhcp_1 tag=10 -- set interface vport-dhcp_1 type=internal`
