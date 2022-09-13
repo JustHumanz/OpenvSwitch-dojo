@@ -25,7 +25,7 @@
 - `ovs-vsctl set br br-int fail_mode=secure`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int int-ex tag=3 -- set interface int-ex type=patch options:peer=ex-int`
+- `ovs-vsctl add-port br-int int-ex -- set interface int-ex type=patch options:peer=ex-int`
 - `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 - `ovs-vsctl add-port br-int int-tun -- set interface int-tun type=patch options:peer=tun-int`
 - `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
@@ -74,16 +74,39 @@
 - `ip netns exec fip-ns ip add add 169.254.31.239/31 dev fpr`
 - `ip netns exec fip-ns ip link set fpr up`
 - `ip netns exec fip-ns ip route add 192.168.100.150 via 169.254.31.238 dev fpr`
-- `ip netns exec fip-ns ip route add 192.168.100.160 via 169.254.31.238 dev fpr`
-- `ip netns exec fip-ns ip route add 192.168.100.170 via 169.254.31.238 dev fpr`
-- `ip netns exec fip-ns ip route add 192.168.100.180 via 169.254.31.238 dev fpr`
+- ~~`ip netns exec fip-ns ip route add 192.168.100.160 via 169.254.31.238 dev fpr`~~
+- ~~`ip netns exec fip-ns ip route add 192.168.100.170 via 169.254.31.238 dev fpr`~~
+- ~~`ip netns exec fip-ns ip route add 192.168.100.180 via 169.254.31.238 dev fpr`~~
 
 #### set ip route router-ns
-- `ip netns exec router-ns ip route add default via 169.254.31.239 dev rfp`
+- ~~`ip netns exec router-ns ip route add default via 169.254.31.239 dev rfp`~~
+- `ip netns exec router-ns ip route add default via vport-router_1 table 5252`
+- `ip netns exec router-ns ip rule add from 172.16.18.0/24 lookup 5252 priority 42766`
+
+- `ip netns exec router-ns ip route add default via 169.254.31.239 dev rfp table 2525`
+- `ip netns exec router-ns ip rule add from 172.16.18.100 lookup 2525 priority 627660`
 
 #### set nat firewall
-- `ip netns exec router-ns iptables -t nat -A PREROUTING -d 192.168.100.150/32 -j DNAT --to-destination 172.16.18.100`
-- `ip netns exec router-ns iptables -t nat -A POSTROUTING -s 172.16.18.100/32 -j SNAT --to-source 192.168.100.150`
+
+###### add new chains
+- `ip netns exec router-ns iptables -t nat -N humanz-neutron-OUTPUT`
+- `ip netns exec router-ns iptables -t nat -N humanz-neutron-POSTROUTING `
+- `ip netns exec router-ns iptables -t nat -N humanz-neutron-PREROUTING `
+- `ip netns exec router-ns iptables -t nat -N humanz-neutron-float-snat`
+- `ip netns exec router-ns iptables -t nat -N humanz-neutron-snat`
+- `ip netns exec router-ns iptables -t nat -N neutron-postrouting-bottom`
+###### set PREROUTING,OUTPUT,POSTROUTING jump to new chains
+- `ip netns exec router-ns iptables -t nat -A PREROUTING -j humanz-neutron-PREROUTING`
+- `ip netns exec router-ns iptables -t nat -A OUTPUT -j humanz-neutron-OUTPUT`
+- `ip netns exec router-ns iptables -t nat -A POSTROUTING -j humanz-neutron-POSTROUTING `
+- `ip netns exec router-ns iptables -t nat -A POSTROUTING -j neutron-postrouting-bottom`
+##### set DNAT&SNAT
+- `ip netns exec router-ns iptables -t nat -A humanz-neutron-OUTPUT -d 192.168.100.150/32 -j DNAT --to-destination 172.16.18.100`
+- `ip netns exec router-ns iptables -t nat -A humanz-neutron-POSTROUTING ! -i rfp ! -o rfp -m conntrack ! --ctstate DNAT -j ACCEPT`
+- `ip netns exec router-ns iptables -t nat -A humanz-neutron-PREROUTING -d 192.168.100.150/32 -j DNAT --to-destination 172.16.18.100`
+- `ip netns exec router-ns iptables -t nat -A humanz-neutron-float-snat -s 172.16.18.100/32 -j SNAT --to-source 192.168.100.150`
+- `ip netns exec router-ns iptables -t nat -A humanz-neutron-snat -j humanz-neutron-float-snat`
+- `ip netns exec router-ns iptables -t nat -A neutron-postrouting-bottom -m comment --comment "Perform source NAT on outgoing traffic." -j humanz-neutron-snat`
 
 #### set dhcp server
 - `ovs-vsctl add-port br-int vport-dhcp_1 tag=10 -- set interface vport-dhcp_1 type=internal`
@@ -187,7 +210,7 @@ virt-install --import --name cirros-vm-1 --memory 512 --vcpus 1 --cpu host \
 - `ovs-vsctl set br br-int fail_mode=secure`
 
 #### create port for patch type 
-- `ovs-vsctl add-port br-int int-ex tag=3 -- set interface int-ex type=patch options:peer=ex-int`
+- `ovs-vsctl add-port br-int int-ex -- set interface int-ex type=patch options:peer=ex-int`
 - `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 - `ovs-vsctl add-port br-int int-tun -- set interface int-tun type=patch options:peer=tun-int`
 - `ovs-vsctl add-port br-tun tun-int -- set interface tun-int type=patch options:peer=int-tun`
