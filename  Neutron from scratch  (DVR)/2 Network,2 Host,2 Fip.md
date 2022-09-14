@@ -9,7 +9,7 @@
 
 #### create br host
 - `ovs-vsctl add-br br-tun`
-- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.33 options:local_ip=192.168.122.6 options:egress_pkt_mark=0 options:df_default=true options:out_key=flow options:in_key=flow`
+- `ovs-vsctl add-port br-tun vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=192.168.122.33 options:local_ip=192.168.122.7 options:egress_pkt_mark=0 options:df_default=true options:out_key=flow options:in_key=flow`
 - `ovs-vsctl set br br-tun fail_mode=secure`
 
 #### create ex br
@@ -80,11 +80,12 @@
 
 #### set ip route router-ns
 - ~~`ip netns exec router-ns ip route add default via 169.254.31.239 dev rfp`~~
-- `ip netns exec router-ns ip route add default via vport-router_1 table 5252`
-- `ip netns exec router-ns ip rule add from 172.16.18.0/24 lookup 5252 priority 42766`
-
 - `ip netns exec router-ns ip route add default via 169.254.31.239 dev rfp table 2525`
-- `ip netns exec router-ns ip rule add from 172.16.18.100 lookup 2525 priority 627660`
+- `ip netns exec router-ns ip rule add from 172.16.18.100 lookup 2525 priority 42766`
+
+- `ip netns exec router-ns ip route add default dev vport-router_1 table 5252`
+- `ip netns exec router-ns ip rule add from 172.16.18.0/24 lookup 5252 priority 627660`
+
 
 #### set nat firewall
 
@@ -292,7 +293,7 @@ virt-install --import --name cirros-vm-1 --memory 512 --vcpus 1 --cpu host \
 - `ovs-ofctl add-flow br-int "table=0,priority=2,in_port=1,vlan_tci=0x0000/0x1fff,actions=mod_vlan_vid:3,resubmit(,60)"`
 - `ovs-ofctl add-flow br-int "table=0,priority=4 dl_src=00:00:00:00:01:1e,actions=resubmit(,1)"`
 - `ovs-ofctl add-flow br-int "table=0,priority=0 actions=resubmit(,60)"`
-- `ovs-ofctl add-flow br-int "table=1,priority=4 dl_dst=00:00:00:00:02:02 actions=strip_vlan,mod_dl_src:00:00:00:00:02:0f,output:5" #vnet iface`
+- `ovs-ofctl add-flow br-int "table=1,priority=4 dl_dst=00:00:00:00:02:02 actions=strip_vlan,mod_dl_src:00:00:00:00:02:0f,output:5"` #vnet iface
 - `ovs-ofctl add-flow br-int "table=60,priority=3 actions=NORMAL"`
 
 #### tun
