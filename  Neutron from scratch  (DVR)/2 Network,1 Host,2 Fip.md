@@ -74,35 +74,35 @@
 - `ovs-vsctl add-port br-ex ex-int -- set interface ex-int type=patch options:peer=int-ex`
 
 #### create fip & router port in int-br
-- `ovs-vsctl add-port br-int vport-fip tag=3 -- set interface vport-fip type=internal`
-- `ovs-vsctl add-port br-int vport-router_1 tag=10 -- set interface vport-router_1 type=internal`
-- `ovs-vsctl add-port br-int vport-router_2 tag=20 -- set interface vport-router_2 type=internal`
+- `ovs-vsctl add-port br-int v-fip tag=3 -- set interface v-fip type=internal`
+- `ovs-vsctl add-port br-int v-router_1 tag=10 -- set interface v-router_1 type=internal`
+- `ovs-vsctl add-port br-int v-router_2 tag=20 -- set interface v-router_2 type=internal`
 
 #### create fip & router ns
 - `ip netns add fip-ns`
 - `ip netns add router-ns`
 
 #### add vport fip&router to ns
-- `ip link set vport-fip netns fip-ns`
-- `ip link set vport-router_1 netns router-ns`
-- `ip link set vport-router_2 netns router-ns`
+- `ip link set v-fip netns fip-ns`
+- `ip link set v-router_1 netns router-ns`
+- `ip link set v-router_2 netns router-ns`
 
 #### add ip in fip-ns
-- `ip netns exec fip-ns ip add add 192.168.100.254/24 dev vport-fip`
-- `ip netns exec fip-ns ip link set vport-fip up`
-- `ip netns exec fip-ns ip route add default via 192.168.100.1 dev vport-fip`
+- `ip netns exec fip-ns ip add add 192.168.100.254/24 dev v-fip`
+- `ip netns exec fip-ns ip link set v-fip up`
+- `ip netns exec fip-ns ip route add default via 192.168.100.1 dev v-fip`
 
 #### add link from fip to router
 - `ip link add fpr netns fip-ns type veth peer name rfp netns router-ns`
 
 #### enable arp proxy
-- `ip netns exec fip-ns sysctl net.ipv4.conf.vport-fip.proxy_arp=1`
+- `ip netns exec fip-ns sysctl net.ipv4.conf.v-fip.proxy_arp=1`
 
 #### add ip in router-ns
-- `ip netns exec router-ns ip add add 172.16.18.1/24 dev vport-router_1`
-- `ip netns exec router-ns ip add add 172.16.19.1/24 dev vport-router_2`
-- `ip netns exec router-ns ip link set vport-router_1 up`
-- `ip netns exec router-ns ip link set vport-router_2 up`
+- `ip netns exec router-ns ip add add 172.16.18.1/24 dev v-router_1`
+- `ip netns exec router-ns ip add add 172.16.19.1/24 dev v-router_2`
+- `ip netns exec router-ns ip link set v-router_1 up`
+- `ip netns exec router-ns ip link set v-router_2 up`
 - `ip netns exec router-ns sysctl -w net.ipv4.ip_forward=1`
 
 #### add ip in rfp
