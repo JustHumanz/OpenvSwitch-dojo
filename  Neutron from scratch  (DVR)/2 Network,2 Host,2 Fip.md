@@ -346,16 +346,16 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 
 ### set snat(optional)
 
-- `ovs-vsctl add-port br-int vport-snat tag=3 -- set interface vport-snat type=internal`
+- `ovs-vsctl add-port br-int v-snat tag=3 -- set interface v-snat type=internal`
 - `ovs-vsctl add-port br-int v-snat-net20 tag=20 -- set interface v-snat-net20 type=internal`
 
 - `ip netns add snat-ns`
-- `ip link set vport-snat netns snat-ns`
+- `ip link set v-snat netns snat-ns`
 - `ip link set v-snat-net20 netns snat-ns`
 
-- `ip netns exec snat-ns ip add add 192.168.100.252/24 dev vport-snat`
+- `ip netns exec snat-ns ip add add 192.168.100.252/24 dev v-snat`
 - `ip netns exec snat-ns ip add add 172.16.19.10/24 dev v-snat-net20`
-- `ip netns exec snat-ns ifconfig vport-snat up`
+- `ip netns exec snat-ns ifconfig v-snat up`
 - `ip netns exec snat-ns ifconfig v-snat-net20 up`
 
 - `ip netns exec snat-ns iptables -t nat -N humanz-neutron-OUTPUT`
@@ -368,9 +368,9 @@ virt-install --import --name cirros-vm-2 --memory 256 --vcpus 1 --cpu host \
 - `ip netns exec snat-ns iptables -t nat -A OUTPUT -j humanz-neutron-OUTPUT`
 - `ip netns exec snat-ns iptables -t nat -A POSTROUTING -j humanz-neutron-POSTROUTING`
 - `ip netns exec snat-ns iptables -t nat -A POSTROUTING -j neutron-postrouting-bottom`
-- `ip netns exec snat-ns iptables -t nat -A humanz-neutron-POSTROUTING ! -i vport-snat ! -o vport-snat -m conntrack ! --ctstate DNAT -j ACCEPT`
+- `ip netns exec snat-ns iptables -t nat -A humanz-neutron-POSTROUTING ! -i v-snat ! -o v-snat -m conntrack ! --ctstate DNAT -j ACCEPT`
 - `ip netns exec snat-ns iptables -t nat -A humanz-neutron-snat -j humanz-neutron-float-snat`
-- `ip netns exec snat-ns iptables -t nat -A humanz-neutron-snat -o vport-snat -j SNAT --to-source 192.168.100.252`
+- `ip netns exec snat-ns iptables -t nat -A humanz-neutron-snat -o v-snat -j SNAT --to-source 192.168.100.252`
 - `ip netns exec snat-ns iptables -t nat -A humanz-neutron-snat -m mark ! --mark 0x2/0xffff -m conntrack --ctstate DNAT -j SNAT --to-source 192.168.100.252`
 - `ip netns exec snat-ns iptables -t nat -A neutron-postrouting-bottom -m comment --comment "Perform source NAT on outgoing traffic." -j humanz-neutron-snat`
 
