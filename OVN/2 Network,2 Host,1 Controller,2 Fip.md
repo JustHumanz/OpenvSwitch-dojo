@@ -101,80 +101,80 @@ virt-install --import --name cirros-vm-2 --memory 512 --vcpus 1 --cpu host \
 - `ovs-vsctl set interface vnet1 external_ids:iface-id=vm4`
 
 ## Create router 'gw1'
-ovn-nbctl create Logical_Router name=gw1 options:chassis=host1
+- `ovn-nbctl create Logical_Router name=gw1 options:chassis=host1`
 
 ## Create new logical switch and connect it to 'gw1'
-ovn-nbctl ls-add fipNet
-ovn-nbctl lsp-add fipNet fipNet172-gw1
-ovn-nbctl lsp-set-type fipNet172-gw1 router
-ovn-nbctl lsp-set-addresses fipNet172-gw1 00:00:00:f1:00:00
-ovn-nbctl lsp-set-options fipNet172-gw1 router-port=gw1-fipNet172
+- `ovn-nbctl ls-add fipNet`
+- `ovn-nbctl lsp-add fipNet fipNet172-gw1`
+- `ovn-nbctl lsp-set-type fipNet172-gw1 router`
+- `ovn-nbctl lsp-set-addresses fipNet172-gw1 00:00:00:f1:00:00`
+- `ovn-nbctl lsp-set-options fipNet172-gw1 router-port=gw1-fipNet172`
 
-ovn-nbctl lsp-add fipNet fipNet10-gw1
-ovn-nbctl lsp-set-type fipNet10-gw1 router
-ovn-nbctl lsp-set-addresses fipNet10-gw1 00:00:00:f2:00:00
-ovn-nbctl lsp-set-options fipNet10-gw1 router-port=gw1-fipNet10
+- `ovn-nbctl lsp-add fipNet fipNet10-gw1`
+- `ovn-nbctl lsp-set-type fipNet10-gw1 router`
+- `ovn-nbctl lsp-set-addresses fipNet10-gw1 00:00:00:f2:00:00`
+- `ovn-nbctl lsp-set-options fipNet10-gw1 router-port=gw1-fipNet10`
 
 ## Create new port on router 'gw1'
-ovn-nbctl lrp-add gw1 gw1-fipNet172 00:00:00:f1:00:00 192.168.100.254/24
-ovn-nbctl lrp-add gw1 gw1-fipNet10 00:00:00:f2:00:00 192.168.100.253/24
+- `ovn-nbctl lrp-add gw1 gw1-fipNet172 00:00:00:f1:00:00 192.168.100.254/24`
+- `ovn-nbctl lrp-add gw1 gw1-fipNet10 00:00:00:f2:00:00 192.168.100.253/24`
 
 ## Create a new logical switch for connecting the 'gw1' and 'router1' routers
-ovn-nbctl ls-add join
+- `ovn-nbctl ls-add join`
 
 ## Connect 'gw1' to the 'join' switch
-ovn-nbctl lrp-add gw1 gw1-join 00:00:00:00:fa:00 192.168.255.1/24
-ovn-nbctl lsp-add join join-gw1
-ovn-nbctl lsp-set-type join-gw1 router
-ovn-nbctl lsp-set-addresses join-gw1 00:00:00:00:fa:00
-ovn-nbctl lsp-set-options join-gw1 router-port=gw1-join
+- `ovn-nbctl lrp-add gw1 gw1-join 00:00:00:00:fa:00 192.168.255.1/24`
+- `ovn-nbctl lsp-add join join-gw1`
+- `ovn-nbctl lsp-set-type join-gw1 router`
+- `ovn-nbctl lsp-set-addresses join-gw1 00:00:00:00:fa:00`
+- `ovn-nbctl lsp-set-options join-gw1 router-port=gw1-join`
 
 ## 'router1' to the 'join' switch
-ovn-nbctl lrp-add router1 router1-join 00:00:00:00:fb:00 192.168.255.2/24
-ovn-nbctl lsp-add join join-router1
-ovn-nbctl lsp-set-type join-router1 router
-ovn-nbctl lsp-set-addresses join-router1 00:00:00:00:fb:00
-ovn-nbctl lsp-set-options join-router1 router-port=router1-join
+- `ovn-nbctl lrp-add router1 router1-join 00:00:00:00:fb:00 192.168.255.2/24`
+- `ovn-nbctl lsp-add join join-router1`
+- `ovn-nbctl lsp-set-type join-router1 router`
+- `ovn-nbctl lsp-set-addresses join-router1 00:00:00:00:fb:00`
+- `ovn-nbctl lsp-set-options join-router1 router-port=router1-join`
 
 ## Add static routes
-ovn-nbctl lr-route-add gw1 "172.0.0.0/24" 192.168.255.2
-ovn-nbctl lr-route-add gw1 "10.0.0.0/24" 192.168.255.2
-ovn-nbctl lr-route-add router1 "0.0.0.0/0" 192.168.255.1
+- `ovn-nbctl lr-route-add gw1 "172.0.0.0/24" 192.168.255.2`
+- `ovn-nbctl lr-route-add gw1 "10.0.0.0/24" 192.168.255.2`
+- `ovn-nbctl lr-route-add router1 "0.0.0.0/0" 192.168.255.1`
 
 ## Create bridge mapping for eth1. map network name "phyNet" to br-eth1 (run on 'controller1/host1')
-ovs-vsctl set open_vswitch . external-ids:ovn-bridge-mappings=phyNet:br-ex
+- `ovs-vsctl set open_vswitch . external-ids:ovn-bridge-mappings=phyNet:br-ex`
 
 ## Create localnet port on 'outside'. set the network name to "phyNet"
-ovn-nbctl lsp-add fipNet fipNet-localnet
-ovn-nbctl lsp-set-addresses fipNet-localnet unknown
-ovn-nbctl lsp-set-type fipNet-localnet localnet
-ovn-nbctl lsp-set-options fipNet-localnet network_name=phyNet
+- `ovn-nbctl lsp-add fipNet fipNet-localnet`
+- `ovn-nbctl lsp-set-addresses fipNet-localnet unknown`
+- `ovn-nbctl lsp-set-type fipNet-localnet localnet`
+- `ovn-nbctl lsp-set-options fipNet-localnet network_name=phyNet`
 
 ## Fip
-- ovn-nbctl lr-nat-add gw1 snat 192.168.100.254 10.0.0.0/24
-- ovn-nbctl lr-nat-add gw1 snat 192.168.100.253 172.0.0.0/24
+- `ovn-nbctl lr-nat-add gw1 snat 192.168.100.254 10.0.0.0/24`
+- `ovn-nbctl lr-nat-add gw1 snat 192.168.100.253 172.0.0.0/24`
 
-- ovn-nbctl lr-nat-add gw1 dnat_and_snat 192.168.100.160 10.0.0.10
-- ovn-nbctl lr-nat-add gw1 dnat_and_snat 192.168.100.170 172.0.0.10
+- `ovn-nbctl lr-nat-add gw1 dnat_and_snat 192.168.100.160 10.0.0.10`
+- `ovn-nbctl lr-nat-add gw1 dnat_and_snat 192.168.100.170 172.0.0.10`
 
 ## Test on Host2
 **virsh console cirros-vm-1**
-- ping -c 3 172.0.0.10
-- ping -c 3 192.168.100.1 #fip network
+- `ping -c 3 172.0.0.10`
+- `ping -c 3 192.168.100.1` #fip network
 
 **virsh console cirros-vm-2**
-- ping -c 3 172.0.0.20
-- ping -c 3 192.168.100.1 #fip network
+- `ping -c 3 172.0.0.20`
+- `ping -c 3 192.168.100.1` #fip network
 
 ## Test on Host3
 **virsh console cirros-vm-1**
-- ping -c 3 10.0.0.10
-- ping -c 3 192.168.100.1 #fip network
+- `ping -c 3 10.0.0.10`
+- `ping -c 3 192.168.100.1` #fip network
 
 **virsh console cirros-vm-2**
-- ping -c 3 10.0.0.20
-- ping -c 3 192.168.100.1 #fip network
+- `ping -c 3 10.0.0.20`
+- `ping -c 3 192.168.100.1` #fip network
 
 ## Test on laptop
-- ping -c 3 192.168.100.160
-- ping -c 3 192.168.100.170
+- `ping -c 3 192.168.100.160`
+- `ping -c 3 192.168.100.170`
