@@ -29,8 +29,8 @@ TODO topology
 
 ## Set dhcp
 - `ovn-nbctl create dhcp_options cidr=10.0.0.0/24 options='"lease_time"="3600" "router"="10.0.0.1" "server_id"="10.0.0.1" "server_mac"="00:00:00:00:0f:01"'` ## Save the UUID
-- `ovn-nbctl lsp-set-dhcpv4-options port1 $CIDR_UUID`
-- `ovn-nbctl lsp-set-dhcpv4-options port2 $CIDR_UUID`
+- `ovn-nbctl lsp-set-dhcpv4-options vm1 $CIDR_UUID`
+- `ovn-nbctl lsp-set-dhcpv4-options vm2 $CIDR_UUID`
 
 ## In compute node 1, make ovn-controller connect to southbound db, and create test
 - `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.7:6642" external_ids:ovn-encap-ip=192.168.122.33 external_ids:ovn-encap-type="geneve" external_ids:system-id="host2"`
