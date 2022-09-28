@@ -18,7 +18,8 @@ TODO topology
 - `netstat -lntp | grep 664`
 
 ## In controller, create logical switch and ports Set openvswitch on to sb&nb: 
-- `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.7:6642" external_ids:ovn-encap-ip=192.168.122.7 external_ids:ovn-encap-type="geneve" external_ids:system-id="host1"`
+- `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.6:6642" external_ids:ovn-encap-ip=192.168.122.6 external_ids:ovn-encap-type="geneve" external_ids:system-id="host1"`
+- `ovs-vsctl add-br br-int -- set Bridge br-int fail-mode=secure`
 - `ovn-nbctl ls-add net-1`
 - `ovn-nbctl set logical_switch net-1 other_config:subnet="10.0.0.0/24" other_config:exclude_ips="10.0.0.1"`
 - `ovn-nbctl lsp-add net-1 vm1`
@@ -61,7 +62,7 @@ TODO topology
 - `ovn-nbctl lsp-set-dhcpv4-options vm4 $CIDR_UUID`
 
 ## In compute node 1, make ovn-controller connect to southbound db, and create test
-- `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.7:6642" external_ids:ovn-encap-ip=192.168.122.33 external_ids:ovn-encap-type="geneve" external_ids:system-id="host2"`
+- `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.6:6642" external_ids:ovn-encap-ip=192.168.122.33 external_ids:ovn-encap-type="geneve" external_ids:system-id="host2"`
 - `ovs-vsctl add-br br-int -- set Bridge br-int fail-mode=secure`
 ### VMS
 ```
@@ -81,7 +82,7 @@ virt-install --import --name cirros-vm-2 --memory 512 --vcpus 1 --cpu host \
 - `ovs-vsctl set interface vnet1 external_ids:iface-id=vm3`
 
 ## or run the following command in compute node 2 machine instead
-- `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.7:6642" external_ids:ovn-encap-ip=192.168.122.174 external_ids:ovn-encap-type="geneve" external_ids:system-id="host3"`
+- `ovs-vsctl set open_vswitch . external_ids:ovn-remote="tcp:192.168.122.6:6642" external_ids:ovn-encap-ip=192.168.122.174 external_ids:ovn-encap-type="geneve" external_ids:system-id="host3"`
 - `ovs-vsctl add-br br-int -- set Bridge br-int fail-mode=secure`
 ### VMS
 ```
@@ -141,8 +142,11 @@ virt-install --import --name cirros-vm-2 --memory 512 --vcpus 1 --cpu host \
 - `ovn-nbctl lr-route-add gw1 "10.0.0.0/24" 192.168.255.2`
 - `ovn-nbctl lr-route-add router1 "0.0.0.0/0" 192.168.255.1`
 
-## Create bridge mapping for eth1. map network name "phyNet" to br-eth1 (run on 'controller1/host1')
+## Create bridge mapping for enp7s0 map network name "phyNet" to enp7s0 (run on 'controller1/host1')
 - `ovs-vsctl set open_vswitch . external-ids:ovn-bridge-mappings=phyNet:br-ex`
+- `ovs-vsctl add-br br-ex`
+- `ovs-vsctl add-port br-ex enp7s0`
+- `ifconfig enp7s0 up`
 
 ## Create localnet port on 'outside'. set the network name to "phyNet"
 - `ovn-nbctl lsp-add fipNet fipNet-localnet`
