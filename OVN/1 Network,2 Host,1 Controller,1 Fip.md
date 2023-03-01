@@ -51,7 +51,7 @@ TODO topology
 - `ip netns exec vm1-ns ip link set vm1 up`
 - `ip netns exec vm1-ns dhclient vm1`
 
-### In Compute 1, create network linux namespaces vm1
+### In Compute 2, create network linux namespaces vm2
 - `ip link add vm2-peer type veth peer name vm2`
 - `ovs-vsctl add-port br-int vm2-peer`
 - `ovs-vsctl set interface vm2-peer external_ids:iface-id=vm2`
