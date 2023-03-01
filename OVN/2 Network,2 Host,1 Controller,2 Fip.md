@@ -85,14 +85,14 @@ TODO topology
 - `ip netns exec vm2-ns dhclient vm2`
 
 
-## Create bridge mapping for enp7s0 map network name "phyNet" to enp7s0 (run on 'controller1/host1')
+### Create bridge mapping for enp7s0 map network name "phyNet" to enp7s0 (run on 'controller1/host1')
 - `ovs-vsctl set open_vswitch . external-ids:ovn-bridge-mappings=phyNet:br-ex`
 - `ovs-vsctl add-br br-ex`
 - `ovs-vsctl add-port br-ex enp7s0`
 - `ifconfig enp7s0 up`
 
 
-## Create a localnet port
+### Create a localnet port
 - `ovn-nbctl ls-add public`
 - `ovn-nbctl lsp-add public ln-public`
 - `ovn-nbctl lsp-set-type ln-public localnet`
@@ -110,6 +110,6 @@ TODO topology
 - `ovn-nbctl lrp-set-gateway-chassis router1-public host1 20`
 - `ovn-sbctl show`
 
-## Create fip
+### Create fip
 - `ovn-nbctl lr-nat-add router1 dnat_and_snat 192.168.100.160 10.0.0.10`
 - `ovn-nbctl lr-nat-add router1 dnat_and_snat 192.168.100.170 172.0.0.10`
