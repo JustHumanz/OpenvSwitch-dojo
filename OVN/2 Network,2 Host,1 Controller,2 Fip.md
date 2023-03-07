@@ -40,9 +40,9 @@ TODO topology
 
 ### Create logical router router1
 - `ovn-nbctl lr-add router1`
-- `ovn-nbctl lrp-add router1 router1-net1 00:00:00:00:0f:01 10.0.0.1/24`
 
 ### Attach logical switch net-1 to router1
+- `ovn-nbctl lrp-add router1 router1-net1 00:00:00:00:0f:01 10.0.0.1/24`
 - `ovn-nbctl lsp-add net-1 net1-router1`
 - `ovn-nbctl lsp-set-addresses net1-router1 00:00:00:00:0f:01`
 - `ovn-nbctl lsp-set-type net1-router1 router`
